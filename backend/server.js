@@ -1,23 +1,33 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const router = express.Router();
+const Scholarship = require('../models/Scholarship');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+// Get all scholarships
+router.get('/', async (req, res) => {
+  try {
+    const scholarships = await Scholarship.find();
+    res.json(scholarships);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// Connect MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected!'))
-.catch((err) => console.error('❌ MongoDB connection failed:', err));
+// Add new scholarship
+router.post('/', async (req, res) => {
+  const scholarship = new Scholarship({
+    name: req.body.name,
+    description: req.body.description,
+    country: req.body.country,
+    eligibility: req.body.eligibility,
+    deadline: req.body.deadline,
+  });
 
-// Routes
-const scholarshipRoutes = require('./routes/scholarships');
-app.use('/api/scholarships', scholarshipRoutes);
+  try {
+    const newScholarship = await scholarship.save();
+    res.status(201).json(newScholarship);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+module.exports = router;
