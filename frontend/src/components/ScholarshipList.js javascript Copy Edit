@@ -1,0 +1,29 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+function ScholarshipList() {
+  const [scholarships, setScholarships] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/scholarships')
+      .then(res => setScholarships(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div>
+      <h1>Scholarships</h1>
+      <ul>
+        {scholarships.map((scholarship) => (
+          <li key={scholarship._id}>
+            <h2>{scholarship.name}</h2>
+            <p>{scholarship.description}</p>
+            <a href={scholarship.link}>Apply Here</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default ScholarshipList;
